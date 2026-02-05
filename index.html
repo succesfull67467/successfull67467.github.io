@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Application</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Bank Application</h1>
+        <div class="account-info">
+            <p>Balance: $<span id="balance">0.00</span></p>
+        </div>
+        <div class="transactions">
+            <input type="number" id="amount" placeholder="Enter amount">
+            <button id="deposit">Deposit</button>
+            <button id="withdraw">Withdraw</button>
+        </div>
+        <div id="history"></div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>W9B Bank</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- LOGIN -->
+  <div id="login">
+    <h1>W9B BANK</h1>
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <p onclick="showRegister()">Create account</p>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="register" class="hidden">
+    <h2>Create Account</h2>
+    <input id="ruser" placeholder="Username">
+    <input id="rpass" type="password" placeholder="Password">
+    <button onclick="register()">Register</button>
+    <p onclick="showLogin()">Back to login</p>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="hidden">
+    <h2>Welcome, <span id="user"></span></h2>
+    <div class="card">
+      <p>Account Number</p>
+      <strong id="acc"></strong>
+    </div>
+
+    <div class="card">
+      <p>Balance</p>
+      <strong>$<span id="bal"></span></strong>
+    </div>
+
+    <button onclick="addMoney()">Deposit</button>
+    <button onclick="sendMoney()">Transfer</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>body {
+  background:#e5e7eb;
+  font-family: Arial, sans-serif;
+}
+
+.phone {
+  width:360px;
+  margin:40px auto;
+  background:#fff;
+  border-radius:20px;
+  padding:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.2);
+}
+
+h1,h2 {
+  text-align:center;
+  color:#1e3a8a;
+}
+
+input {
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  border-radius:10px;
+  border:1px solid #ccc;
+}
+
+button {
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:10px;
+  background:#2563eb;
+  color:white;
+  font-size:16px;
+}
+
+button:hover {
+  background:#1e40af;
+}
+
+p {
+  text-align:center;
+  color:#2563eb;
+  cursor:pointer;
+}
+
+.card {
+  background:#f1f5f9;
+  padding:15px;
+  border-radius:12px;
+  margin:15px 0;
+}
+
+.hidden {
+  display:none;
+}let users = JSON.parse(localStorage.getItem("users")) || {};
+
+function showRegister(){
+  loginDiv().classList.add("hidden");
+  registerDiv().classList.remove("hidden");
+}
+
+function showLogin(){
+  registerDiv().classList.add("hidden");
+  loginDiv().classList.remove("hidden");
+}
+
+function loginDiv(){ return document.getElementById("login"); }
+function registerDiv(){ return document.getElementById("register"); }
+function dash(){ return document.getElementById("dashboard"); }
+
+function register(){
+  let u = ruser.value;
+  let p = rpass.value;
+  if(!u || !p) return alert("Fill all fields");
+
+  users[u] = {
+    pass:p,
+    balance:20000000,
+    acc:"W9B"+Math.floor(Math.random()*100000000)
+  };
+
+  localStorage.setItem("users", JSON.stringify(users));
+  alert("Account created");
+  showLogin();
+}
+
+function login(){
+  let u = username.value;
+  let p = password.value;
+
+  if(!users[u] || users[u].pass !== p){
+    return alert("Invalid login");
+  }
+
+  sessionStorage.setItem("user", u);
+  loadDash();
+}
+
+function loadDash(){
+  let u = sessionStorage.getItem("user");
+  if(!u) return;
+
+  loginDiv().classList.add("hidden");
+  registerDiv().classList.add("hidden");
+  dash().classList.remove("hidden");
+
+  user.innerText = u;
+  acc.innerText = users[u].acc;
+  bal.innerText = users[u].balance.toLocaleString();
+}
+
+function addMoney(){
+  let u = sessionStorage.getItem("user");
+  users[u].balance += 5000;
+  save(u);
+}
+
+function sendMoney(){
+  let u = sessionStorage.getItem("user");
+  users[u].balance -= 1000;
+  save(u);
+}
+
+function save(u){
+  localStorage.setItem("users", JSON.stringify(users));
+  bal.innerText = users[u].balance.toLocaleString();
+}
+
+function logout(){
+  sessionStorage.clear();
+  location.reload();
+}
+
+loadDash();
