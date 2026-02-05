@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UAB Bank American</title>
+<style>
+body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:#f4f6fb;
+}
+.header{
+    background:#0f2a44;
+    color:#fff;
+    padding:20px;
+    text-align:center;
+}
+.container{
+    max-width:420px;
+    margin:30px auto;
+    background:#fff;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+button{
+    width:100%;
+    padding:12px;
+    background:#1f6bff;
+    border:none;
+    color:#fff;
+    border-radius:8px;
+    font-size:16px;
+    cursor:pointer;
+}
+button:hover{
+    background:#1854cc;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>UAB Bank American</h1>
+    <p>Secure Digital Banking</p>
+</div>
+
+<div class="container">
+    <h2>Welcome</h2>
+    <p>Please sign in to access your account.</p>
+    <button>Sign In</button>
+</div>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UAB Bank</title>
+
+<style>
+:root {
+  --blue: #1f6bff;
+  --bg: #f4f6fb;
+  --card: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+}
+
+* { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.container {
+  max-width: 420px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.header {
+  background: linear-gradient(135deg, var(--blue), #4f8cff);
+  color: white;
+  padding: 20px;
+  border-radius: 16px;
+  text-align: center;
+}
+
+h1 { margin: 0; font-size: 22px; }
+h2 { margin-top: 0; }
+
+input, button, select {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+}
+
+button {
+  background: var(--blue);
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #e5e7eb;
+  color: var(--text);
+}
+
+.hidden { display: none; }
+
+.balance {
+  font-size: 26px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.small { color: var(--muted); font-size: 13px; }
+
+.tx {
+  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+}
+
+.tx:last-child { border-bottom: none; }
+
+.row {
+  display: flex;
+  justify-content: space-between;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- LOGIN -->
+  <div id="loginView" class="card">
+    <div class="header">
+      <h1>UAB Bank</h1>
+      <div class="small">Secure Digital Banking</div>
+    </div>
+
+    <input id="loginUser" placeholder="Username">
+    <input id="loginPass" type="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <button class="secondary" onclick="showRegister()">Create Account</button>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="registerView" class="card hidden">
+    <h2>Create Account</h2>
+    <input id="regUser" placeholder="Username">
+    <input id="regPass" type="password" placeholder="Password">
+    <button onclick="register()">Register</button>
+    <button class="secondary" onclick="showLogin()">Back</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashView" class="hidden">
+
+    <div class="card">
+      <h2 id="welcome"></h2>
+      <div class="small">Account Number</div>
+      <div id="accNum"></div>
+
+      <div class="balance" id="balance">****</div>
+      <button onclick="toggleBalance()">Show / Hide Balance</button>
+    </div>
+
+    <!-- TRANSFER -->
+    <div class="card">
+      <h2>Transfer</h2>
+      <input id="toAcc" placeholder="Recipient Account Number">
+      <input id="amount" type="number" placeholder="Amount">
+      <button onclick="transfer()">Send</button>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="card">
+      <h2>Transaction History</h2>
+      <div id="history"></div>
+    </div>
+
+    <!-- ADMIN -->
+    <div id="adminPanel" class="card hidden">
+      <h2>Admin Panel</h2>
+      <div class="small">Internal Reserve (Demo)</div>
+      <div class="balance">$20,000,000</div>
+      <input id="adminTo" placeholder="User Account Number">
+      <input id="adminAmt" type="number" placeholder="Amount">
+      <button onclick="adminSend()">Send Funds</button>
+    </div>
+
+    <button class="secondary" onclick="logout()">Logout</button>
+    <div class="small" style="text-align:center;margin-top:10px;">
+      Demo banking system — no real money
+    </div>
+
+  </div>
+</div>
+
+<script>
+let users = JSON.parse(localStorage.getItem("uab_users")) || {};
+let currentUser = null;
+let showBal = false;
+
+// Create admin if not exists
+if (!users.admin) {
+  users.admin = {
+    password: "admin123",
+    account: "0000000000",
+    balance: 0,
+    history: [],
+    admin: true
+  };
+  save();
+}
+
+function save() {
+  localStorage.setItem("uab_users", JSON.stringify(users));
+}
+
+function showRegister() {
+  loginView.classList.add("hidden");
+  registerView.classList.remove("hidden");
+}
+
+function showLogin() {
+  registerView.classList.add("hidden");
+  loginView.classList.remove("hidden");
+}
+
+function register() {
+  let u = regUser.value;
+  let p = regPass.value;
+  if (!u || !p) return alert("Fill all fields");
+
+  if (users[u]) return alert("Username exists");
+
+  users[u] = {
+    password: p,
+    account: Math.floor(1000000000 + Math.random()*9000000000).toString(),
+    balance: 0,
+    history: [],
+    admin: false
+  };
+  save();
+  alert("Account created. Login now.");
+  showLogin();
+}
+
+function login() {
+  let u = loginUser.value;
+  let p = loginPass.value;
+  if (!users[u] || users[u].password !== p) {
+    return alert("Invalid login");
+  }
+  currentUser = u;
+  loginView.classList.add("hidden");
+  dashView.classList.remove("hidden");
+  loadDash();
+}
+
+function loadDash() {
+  let user = users[currentUser];
+  welcome.innerText = "Welcome, " + currentUser;
+  accNum.innerText = user.account;
+  balance.innerText = showBal ? "$" + user.balance.toLocaleString() : "****";
+  history.innerHTML = user.history.map(t =>
+    `<div class="tx"><div class="row"><div>${t.note}</div><div>$${t.amount}</div></div></div>`
+  ).join("");
+
+  adminPanel.classList.toggle("hidden", !user.admin);
+}
+
+function toggleBalance() {
+  showBal = !showBal;
+  loadDash();
+}
+
+function transfer() {
+  let to = toAcc.value;
+  let amt = Number(amount.value);
+  if (amt <= 0) return alert("Invalid amount");
+
+  let sender = users[currentUser];
+  let recipient = Object.values(users).find(u => u.account === to);
+  if (!recipient) return alert("Account not found");
+  if (sender.balance < amt) return alert("Insufficient funds");
+
+  sender.balance -= amt;
+  recipient.balance += amt;
+
+  sender.history.unshift({ note: "Sent to " + to, amount: amt });
+  recipient.history.unshift({ note: "Received from " + sender.account, amount: amt });
+
+  save();
+  loadDash();
+}
+
+function adminSend() {
+  let to = adminTo.value;
+  let amt = Number(adminAmt.value);
+  let recipient = Object.values(users).find(u => u.account === to);
+  if (!recipient) return alert("Account not found");
+
+  recipient.balance += amt;
+  recipient.history.unshift({ note: "Admin credit", amount: amt });
+  save();
+  loadDash();
+}
+
+function logout() {
+  currentUser = null;
+  dashView.classList.add("hidden");
+  loginView.classList.remove("hidden");
+}
+</script>
+
+</body>
+</html>
